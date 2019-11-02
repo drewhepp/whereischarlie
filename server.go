@@ -5,6 +5,7 @@ import (
   "fmt"
   "log"
   "net/http"
+  "os"
 )
 
 type coords struct {
@@ -43,7 +44,11 @@ func main() {
   http.HandleFunc("/position", positionHandler)
 
   log.Println("Go!")
-  if err := http.ListenAndServe(":80", nil); err != nil {
+  port := os.Getenv("PORT")
+  if port == "" {
+    port = "8080"
+  }
+  if err := http.ListenAndServe(fmt.Sprintf(":%s", port), nil); err != nil {
     panic(err)
   }
 }

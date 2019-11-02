@@ -1,3 +1,3 @@
 #!/bin/bash
 
-curl -i -X POST -H 'Content-Type: application/json' -d '{"lat": '"$1"',"lng": '"$2"'}' http://127.0.0.1/position
+curl -i -X POST -H 'Content-Type: application/json' -d '{"lat": '"$1"',"lng": '"$2"'}' http://whereischarlie.org/position
