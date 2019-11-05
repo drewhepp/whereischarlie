@@ -27,9 +27,8 @@ func float32FromBytes(bytes []byte) float32 {
 }
 
 func main() {
-  endpoint := "whereischarlie.org/position"
-  udpPort := 5000
-  s, err := net.ResolveUDPAddr("udp4", fmt.Sprintf(":%s", udpPort))
+  endpoint := "https://whereischarlie.org/position"
+  s, err := net.ResolveUDPAddr("udp4", ":5000")
   if err != nil {
     panic(err)
   }
@@ -39,21 +38,31 @@ func main() {
   }
 
   buf := make([]byte, 65535)
-  n, _, err := conn.ReadFrom(buf)
-  if err != nil {
-    panic(err)
+  for {
+    n, _, err := conn.ReadFrom(buf)
+    if err != nil {
+      panic(err)
+    }
+    if n != 8 {
+      fmt.Printf("Recv'ed %s bytes, should be 8\n", string(n))
+      return
+    }
+
+    lat := float32FromBytes(buf[:4])
+    lng := float32FromBytes(buf[4:])
+
+    position.Lat = lat
+    position.Lng = lng
+    fmt.Println(lat)
+    fmt.Println(lng)
+    fmt.Println()
+
+    val, _ := json.Marshal(position)
+    r, err := http.Post(endpoint, "application/json", bytes.NewBuffer(val))
+    if(err != nil) {
+      panic(err)
+    }
+    fmt.Println(r)
   }
-  if n != 8 {
-    fmt.Printf("Recv'ed %s bytes, should be 8\n", string(n))
-    return
-  }
-
-  lat := float32FromBytes(buf[:4])
-  lng := float32FromBytes(buf[4:])
-
-  position.Lat = lat;
-  position.Lng = lng;
-
-  val, _ := json.Marshal(position)
-  http.Post(endpoint, "application/json", bytes.NewBuffer(val))
 }
+
